@@ -1,6 +1,7 @@
 require 'rack'
 require 'router'
 require 'controller_base'
+require 'byebug'
 
 describe Route do
   let(:req) { Rack::Request.new({ 'rack.input' => {} }) }
@@ -115,7 +116,6 @@ describe Router do
     it 'calls http method methods with the route information to add the route' do
       index_route = double('route')
       post_route = double('route')
-
       routes = Proc.new do
         get index_route
         post post_route

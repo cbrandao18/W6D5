@@ -1,7 +1,7 @@
 require 'rack'
 require_relative '../lib/controller_base'
 require_relative '../lib/router'
-
+require 'byebug'
 
 $cats = [
   { id: 1, name: "Curie" },
