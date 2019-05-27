@@ -12,6 +12,7 @@ class ControllerBase
     @req = req
     @res = res
     @params = route_params.merge(req.params)
+    @@protected ||= false
   end
 
   # Helper method to alias @already_built_response
@@ -68,7 +69,36 @@ class ControllerBase
 
   # use this with the router to call action_name (:index, :show, :create...)
   def invoke_action(name)
+    if protected? && req.request_method != "GET"
+      check_authenticity_token
+    end
+    
     self.send(name)
     render(name) unless already_built_response?
+  end
+
+  #Phase XI
+  def self.protect_from_forgery
+    @@protected = true
+  end
+
+  def protected?
+    @@protected
+  end
+
+  # Will provide your developer with a way to include the CSRF token in their form
+  def form_authenticity_token
+    @token ||= SecureRandom.urlsafe_base64
+    res.set_cookie("authenticity_token", {value: @token, path: "/"})
+    @token
+  end
+
+  # This method is what will actually be used to validate the auth token
+  # It should be called from within #invoke_action.
+  def check_authenticity_token
+    cookie = req.cookies["authenticity_token"]
+    unless cookie && cookie == params["authenticity_token"]
+      raise "Invalid authenticity token"
+    end
   end
 end
